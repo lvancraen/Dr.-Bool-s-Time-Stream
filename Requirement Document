@@ -1,0 +1,964 @@
+\documentclass[titlepage]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amsthm,amssymb,graphicx,float,listings,geometry,tikz,enumitem}
+\usetikzlibrary{automata,positioning}
+\usepackage{color, colortbl}
+
+\definecolor{Gray}{gray}{0.9}
+\title{Dr. Bool's 'TimeStream'!\\
+Requirement Document\\
+}
+
+\author{\\
+\\
+\\
+Armin Taheri, Alex Parmentier, Louis Van Craen, Jonathan Arlauskas \\
+\\
+\\
+\\
+\\
+\\
+COMP 361 Software Engineering Project\\ 
+School of Computer Science \\
+McGill University \\
+Montreal, Canada
+\\
+\\
+\\}
+
+\date{\today}
+
+\begin{document}
+    \def\arraystretch{1.5}
+    \newgeometry{bottom=2cm,top=2cm,left=2cm,right=2cm}
+
+    \maketitle
+        
+    \tableofcontents
+
+    \newpage
+    
+    \section{Introduction}
+    
+    The following document offers an overview of the flows, functions and activities of our project. Each section in the document will give the reader a broad understanding of the project. This project offers a 2.5D world that allows for the editing of terrain, as well as additions of AI, themed after a neolithic world, where the AI are attempting to survive.
+    
+    \subsection{Purpose}
+    This requirements document is intended as a guide for the stakeholders to better grasp the systems involved in the project, and how they relate to clients that will be using the simulation.
+    
+    The stakeholders are looking for an opportunity to develop logical skills as well as have a sense of enjoyment from some form of a game. Additionally, this project would be the first of its kind, in terms of theme combined with unique features, and thus the stakeholders are looking for a fresher implementation of a gaming simulation.  
+
+    The importance of this project can be demonstrated through its learning aspects. Giving users the option to upload AI scripts, allows a certain degree of logical sense development. Often times in games and simulations, the learning benefits are not as clear. For this simulation, the logical aspects will mimic that of programming, allowing the especially young stakeholders to reap benefits in the form of early exposure to logic and critical thinking when creating scripts. However the benefits are not restricted to the younger stakeholders. Anyone can find benefits to their logical skills from the simulation, by seeing real time how their characters will act out based on the consequences of their logical AI script uploads.
+    
+    \subsection{Scope}
+    \textbf{Scale}: We are not looking to compete with larger scale simulations such as The Sims (likely the most widespread known example). However, our simulation offers a low level functionality through our AI scripts that promote stronger learning. Thus, although in the same realm of other simulations, we are not looking to solve the main issues that have arisen in others. Rather, we are more concerned about a uniqueness to our product, than trying to  smooth out the edges of other simulation game type products.\\
+    \textbf{Bounds}: Boundaries to the project must also be taken into consideration. AI scripts will be bounded by the amount of possible commands we allow them to execute. The environment itself will require bounds on object dimension and action. User wise, the project will face bounds from the competency of the user. The user requires a certain level of logical structure in order to operate the simulation. This is a big part of the age range set out by the stakeholder.\\
+    \textbf{Goals}: We will seek to achieve completion of the project in the given time frame (Preliminary design documents contain specified time guidelines). Completion implies a fully functional simulation, with full implementation of the features we have outlined 
+
+    
+    
+    \subsection{Definitions, Acronyms, Abbreviations}
+    \begin{itemize}
+    \item \textbf{AI} - an acronym for artificial intelligence. Often referenced in the context of “AI scripts” or “uploading a new AI”, or, when an AI script is being used to determine the actions
+    of an agent in the simulation, an "actor".
+
+    \item \textbf{2.5D} - refers to a surface which is a projection of a plane into 3rd dimension – although the object is 3-dimensional, there are no overhanging elements possible
+
+    \item \textbf{Simulation Host} - The user who created a certain instance of a simulation is referred to as the host. 
+    
+    \item \textbf{Server} - servers allow the sharing of data  and software resources among its clients. Our server handles requests and responds to them accordingly
+    
+    \item \textbf{Postgres SQL} - the projects object relational database system
+    
+    \item \textbf{Frames} - a frame is like a snapshot of the current state of the simulation. The job
+    of the simulation client that the user interacts with is to display frames in the correct order
+    and speed.
+    
+    \end{itemize}
+
+    \subsection{References}
+    References here provide links to information regarding the major technologies in the project. Readers looking to get a more detailed overview into the technical functioning of each system can get a better sense by referring to these references.\\
+    
+    Django :
+    www.djangoproject.com \\
+
+    Digital Ocean :
+    www.digitalocean.com\\
+
+    Babylon.js :
+    www.babylonjs.com\\
+
+    Pykka :
+    www.pykka.org
+
+    \subsection{Overview}
+    This document offers explanations of the various systems of the project in varying levels of detail. The \textit{System Wide Use Case Diagram} presents a broad overview of the components of the simulation. Each component has its own \textit{Use Case Diagram}, which will offer further detail into its processes. Each use case diagram is accompanied by a series of \textit{Use Case Templates}, which offer further detail into that particular activity.\\
+	The \textit{Storyboard} guides the reader through the user interface elements that they will navigate through if interacting with the simulation. Menu flows, options, and simulation interactions are visualized here.\\
+	\textit{Environment descriptions} offers an identification of all the technology and hardware in our simulation, and how the system will run. Team Use case diagram overviews the work flow and processes that each team member will take. Additionally, you will find installation instructions for the users, a key instructional aspect that is the starting point for any users of the project.\\
+	The \textit{Data Flow Diagram} gives a broad (macro) look at how data will flow through the project. This allows readers to track what is being passed to what system, and gain a better understanding of the flow of the system.\\\\
+	Note: The goal of the document is to give a description of how the project will function, without going into very specific technical details. Software design and computer science knowledge are not a necessary requirement to get a strong grasp of how the project will function by reading the requirements document. Through the use of diagrams and descriptions, readers should be able to visualize the flow of the project by going through the following document.
+    \newpage
+    
+    \section{System Wide Use Case Diagram}
+    
+    \begin{figure}[htb]
+      \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{system-uml}}%
+    \end{figure}
+    
+    \newpage
+    % Use cases can be formatted like this:
+    
+
+    \section{Use Case Diagram: Registration}
+    \begin{center}        
+    \includegraphics[scale=0.6]{register} \\
+    
+    \addcontentsline{toc}{subsection}{Template: Register}
+    \begin{tabular}{| l |p{13cm}|}
+        \hline
+        \rowcolor{Gray}
+
+        Use Case Name & 
+        Register \\ \hline
+        
+        Summary & 
+        The user create an account to track authorship of simulation instances and AI scripts and 
+        to allow spectating and hosting simulations. \\ \hline
+        
+        Activities & 
+            \begin{enumerate}
+                \item User enters desired username and password.
+                \item System verifies that username is available, and password is strong enough.
+                \item If 2 succeeded, record the account in the database and redirect the user to log-in page. 
+            \end{enumerate} \\ \hline
+            
+        Alternate Paths &
+        If 2 fails, print a message stating which input was insufficient and return to 1. \\ \hline
+        
+        Exception Paths &
+        None. \\ \hline
+        
+        Assumptions &
+        None. \\ \hline
+        
+        Trigger &
+        User decides they'd like to have access to the main features of site. \\ \hline
+        
+        Precondition &
+        User is not already logged in. \\ \hline
+        
+        Postcondition &
+        A new user account is created in the database. \\ \hline
+        
+        Author &
+        Alex Parmentier \\ \hline
+        
+        Date & 
+        2015-11-23 \\ \hline
+    \end{tabular}
+    \end{center}
+    
+    \addcontentsline{toc}{subsection}{Overview: Registration}
+    Creating user accounts and tying them to sessions and database entries is made very easy
+    by the Django framework, so this use case is rather trivial. There are not major concerns or constraints  for this reason. 
+    This diagram and template was simply included for completeness.
+    
+    \newpage
+    
+    \section{Use Case Diagram: Account Management}
+    \begin{center}
+
+        \includegraphics[scale=0.6]{acc-manage} \\
+        
+        \addcontentsline{toc}{subsection}{Template: Delete Hosted Simulation}
+        \begin{tabular}{| l |p{13cm}|}
+            \hline
+            \rowcolor{Gray}
+            Use Case:& Delete Hosted Simulation \\ \hline
+            Summary:& A registered user deletes a simulation they have
+                      previously hosted. \\ \hline
+            Activities:& 
+                \begin{enumerate}
+                    \item User presses delete simulation button for a simulation. 
+                    \item Refer to use case: Re-enter Login Information.
+                    \item Selected Simulation is deleted from database.
+                \end{enumerate}
+            \\ \hline
+            Alternate Activities:& None \\ \hline
+            Exception Paths:&
+                \begin{enumerate}[label={3.\arabic*}]
+                    \item Refer to exception paths of use case: Re-enter Login Information.
+                    \item No further changes are made.
+                \end{enumerate}
+            \\ \hline
+            Extension Paths:& None \\ \hline
+            Assumptions:& None \\ \hline
+            Trigger:& User clicks on delete button for some simulation they have hosted.\\ \hline
+            Pre-conditions:& User is currently in account management view. \\ \hline
+            Post-conditions:& Selected Simulation is deleted from database. \\ \hline
+            Author:& Armin Taheri \\ \hline
+            Date:& 2015-11-23 \\ \hline
+        \end{tabular}
+
+        %---Delete Account Template---%
+        \addcontentsline{toc}{subsection}{Template: Delete Account}
+        \begin{tabular}{| l |p{13cm}|}
+            \hline
+            \rowcolor{Gray}
+            Use Case:& Delete Account \\ \hline
+            Summary:& A registered user deletes her account. \\ \hline
+            Activities:& 
+                \begin{enumerate}
+                    \item User presses delete account button. 
+                    \item Refer to use case: Re-enter Login Information. 
+                    \item User is logged out. 
+                    \item Account is fully deleted. 
+                \end{enumerate}
+            \\ \hline
+            Alternate Activities:& None \\ \hline
+            Exception Paths:&
+                \begin{enumerate}[label={3.\arabic*}]
+                    \item Refer to exception paths of use case: Re-enter Login Information.
+                    \item No further changes are made.
+                \end{enumerate}
+            \\ \hline
+            Extension Paths:& None \\ \hline
+            Assumptions:& None \\ \hline
+            Trigger:& User clicks on delete account button. \\ \hline
+            Pre-conditions:& User is currently in account management view.\\ \hline
+            Post-conditions:& User's Account is deleted and user is logged out.\\ \hline
+            Author:& Armin Taheri \\ \hline
+            Date:& 2015-11-23 \\ \hline
+        \end{tabular}
+
+
+        %---Re-Enter Login Information Template---%
+        \addcontentsline{toc}{subsection}{Template: Re-Enter Login Information}
+        \begin{tabular}{| l |p{13cm}|}
+            \hline
+            \rowcolor{Gray}
+            Use Case:& Re-Enter Login Information \\ \hline
+            Summary:& The Actor enters her login information before a
+                      sensitive operation is
+                      \\& done. \\ \hline
+            Activities:& 
+                \begin{enumerate}
+                    \item User enters user name.
+                    \item User enters password.
+                    \item User clicks submission button.
+                \end{enumerate}
+
+            \\ \hline
+            Alternate Activities:& None \\ \hline
+            Exception Paths:& 
+                \begin{enumerate}[label={3.\arabic*}]
+                    \item User enters incorrect user name or password
+                    \item An error window is presented to the user
+                \end{enumerate}
+            \\ \hline
+            Extension Paths:& None \\ \hline
+            Assumptions:& None \\ \hline
+            Trigger:& A sensitive account management operation occurs.\\ \hline
+            Pre-conditions:& None \\ \hline
+            Post-conditions:& Sensitive operation occurs. \\ \hline
+            Author:& Armin Taheri \\ \hline
+            Date:& 2015-11-23 \\ \hline
+        \end{tabular}
+        
+        \vspace{.25cm}
+        
+        \addcontentsline{toc}{subsection}{Template: Send Technical Support Ticket}
+        \begin{tabular}{| l |p{13cm}|}
+            \hline
+            \rowcolor{Gray}
+            Use Case:& Send Technical Support Ticket \\ \hline
+            Summary:& A registered user sends a message to the technical support team \\ \hline
+            Activities: &
+            \begin{enumerate}
+                \item User enters ticket title.
+                \item User enters ticket message.
+                \item Ticket is sent as email to technical support team. 
+            \end{enumerate}
+            \\ \hline
+            Alternate Activities:& None \\ \hline
+            Exception Paths:& \\ \hline
+            Extension Paths:& None \\ \hline
+            Assumptions:& None \\ \hline
+            Trigger:& User clicks ask for help button.\\ \hline
+            Pre-conditions:& None \\ \hline
+            Post-conditions:& Support ticket is sent as email to technical support team. \\ \hline
+            Author:& Armin Taheri \\ \hline
+            Date:& 2015-11-23 \\ \hline
+        \end{tabular}
+    \end{center}
+    \newpage
+    \addcontentsline{toc}{subsection}{Overview: Account Management}
+        A major concern when handling account management is making sure all operations involved are made
+    by the true account owner. There are many ways a user account management operation could occur
+    occur without the true account owner's consent. Extreme methods such as hacking into the database and
+    trying to crack account passwords to log in with or phishing attacks, in the form of external links
+    or emails, require a fair amount of security expertise to ensure all the endpoints of the server's local network
+    are tolerably secure. Password encryption, at the current moment, is best done using BCRYPT2 encryption using
+    pseudorandom salts. Preventing phishing attacks is usually dealt by never requiring a password
+    any except for logging into the simulation.
+        
+        This leaves the simple act of someone using a logged in user's computer while she is logged in.
+    It would be safe to add one extra point of credential verification aside from logging in to verify
+    it is in fact the account owner who is doing a certain operation. As the user must already be logged in,
+    a phishing attack would have to fully emulate the simulator to be successful.
+    
+    \newpage
+
+    \section{Use Case Diagram: Interact with 3D Simulation}
+    \begin{figure}[htb]
+      \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{Interact}}%
+    \end{figure}
+    
+    \begin{center}
+        
+        \addcontentsline{toc}{subsection}{Template: Start New Game}
+        \begin{tabular}{| l |p{13cm}|}
+            \hline
+            \rowcolor{Gray}
+            Use Case:& Start New Game \\ \hline
+            Summary:& A user creates a new simulation which they will be uniquely
+            privileged to host. They will be the only user who can modify the terrain
+            of this simulation or add AI actors to the map.\\ \hline
+            Activities: &
+            \begin{enumerate}
+                \item User enters simulation title and sets public/private bool, 
+                    then submits.
+                \item Server validates user ability to host games and title of game.
+                \item Game instance created as object in database and server sends back confirmation.
+                \item User redirected to 3D simulation page for their new game.
+             \end{enumerate}
+            \\ \hline
+            Alternate Activities:& None \\ \hline
+            Exception Paths:& In 2, if the user is not allowed to host any more games, or
+            the title of their game is rejected, display a message asking
+            the user if they would like to  be redirected to the Account Management page
+            where they can delete one of their simulations.  \\ \hline
+            Extension Paths:& None \\ \hline
+            Assumptions:& None \\ \hline
+            Trigger:& User decides to create a new simulation.\\ \hline
+            Pre-conditions:& User is logged in. \\ \hline
+            Post-conditions:& New game instance saved in database. \\ \hline
+            Author:& Alex Parmentier\\ \hline
+            Date:& 2015-11-23 \\ \hline
+        \end{tabular}
+        
+        \addcontentsline{toc}{subsection}{Template: Load Game}
+        \begin{tabular}{| l |p{13cm}|}
+            \hline
+            \rowcolor{Gray}
+            Use Case:& Load Game \\ \hline
+            Summary:& A user chooses from a list of simulations they previously created
+            and this game instance is loaded into the 3D  simulation.\\ \hline
+            Activities: &
+            \begin{enumerate}
+                \item User chooses one of their simulations to load.
+                \item User is redirect to 3D simulation page, where the game information
+                    is loaded out of the database and sent to the user's client to be displayed.
+             \end{enumerate}
+            \\ \hline
+            Alternate Activities:& None \\ \hline
+            Exception Paths:& If user has no previously created games to choose from
+                they are redirected to the Start New Game interface. \\ \hline
+            Extension Paths:& None. \\ \hline
+            Assumptions:& None \\ \hline
+            Trigger:& User decides to load a simulation they previously created.\\ \hline
+            Pre-conditions:& User is logged in, user has previously created at least one game.\\ \hline
+            Post-conditions:& Simulation engine is loaded as a Pykka actor on server for 
+                3D simulation to request turns and information from. \\ \hline
+            Author:& Alex Parmentier\\ \hline
+            Date:& 2015-11-23 \\ \hline
+        \end{tabular}
+        
+        \vspace{.25cm}
+
+        \addcontentsline{toc}{subsection}{Template: Spectate Game}
+        \begin{tabular}{| l |p{13cm}|}
+            \hline
+            \rowcolor{Gray}
+            Use Case:& Spectate Game\\ \hline
+            Summary:& A user chooses from a list of currently active games, and this
+                game is loaded into the 3D simulation, where they can watch
+                the simulation as it progresses.\\ \hline
+            Activities: &
+            \begin{enumerate}
+                \item User chooses a simulation to spectate.
+                \item User is redirect to 3D simulation page, where the game information
+                    is loaded out of the database and sent to the user's client to be displayed.
+                \item User chooses to play/pause/rewind their view of the simulation
+             \end{enumerate}
+            \\ \hline
+            Alternate Activities:& None \\ \hline
+            Exception Paths:& If user tries to view turns that the host has not yet requested,
+            they are offered the chance to copy the game to their own account and host their own
+            version of it. \\ \hline
+            Extension Paths:& None. \\ \hline
+            Assumptions:& None \\ \hline
+            Trigger:& User decides to spectate a game that another user is hosting.\\ \hline
+            Pre-conditions:& User is logged in.\\ \hline
+            Post-conditions:& None. \\ \hline
+            Author:& Alex Parmentier\\ \hline
+            Date:& 2015-11-23 \\ \hline
+        \end{tabular}
+        
+        \addcontentsline{toc}{subsection}{Template: Rewind}
+        \begin{tabular}{| l |p{13cm}|}
+            \hline
+            \rowcolor{Gray}
+            Use Case:& Rewind\\ \hline
+            Summary:& A user who is interacting with a 3D simulation chooses to rewind and
+            view turns in reverse.\\ \hline
+            Activities: &
+            \begin{enumerate}
+                \item User hits rewind button.
+                \item Turns are requested from the saved copy of the history of the simulation
+                in the database.
+                \item All turn-deltas are inverted on the user's client-side and displayed as such.
+             \end{enumerate}
+            \\ \hline
+            Alternate Activities:& None \\ \hline
+            Exception Paths:& None. \\ \hline
+            Extension Paths:& None. \\ \hline
+            Assumptions:& Turn delta's will all be invertible. \\ \hline
+            Trigger:& User decided to rewind..\\ \hline
+            Pre-conditions:& User is viewing a 3D simulation.\\ \hline
+            Post-conditions:& The 3D simulation is in rewind mode. \\ \hline
+            Author:& Alex Parmentier\\ \hline
+            Date:& 2015-11-23 \\ \hline
+        \end{tabular}
+        
+        \vspace{.25cm}
+        
+        \addcontentsline{toc}{subsection}{Template: Play/Pause}
+        \begin{tabular}{| l |p{13cm}|}
+            \hline
+            \rowcolor{Gray}
+            Use Case:& Play/Pause\\ \hline
+            Summary:& A user who is interacting with a 3D simulation presses a button that
+            acts like a switch, toggling the simulation between paused and playing modes.\\ \hline
+            Activities: &
+            \begin{enumerate}
+                \item User hits play/pause.
+                \item If playing, 3D-client stops displaying turns and no more turns are requested 
+                until the button is hit again. Modifying AI actors and terrain is enabled if the pausing
+                player is the host.
+                \item If paused, 3D-client begins displaying turns, relays any changes that were made
+                to the state of the world to the server, and gets ready to request more turns. 
+                Modifying AI actors and editing terrain is disabled.
+             \end{enumerate}
+            \\ \hline
+            Alternate Activities:& None \\ \hline
+            Exception Paths:& While paused, host user has option of modifying AI or editing map. \\ \hline
+            Extension Paths:& None. \\ \hline
+            Assumptions:& None.\\ \hline
+            Trigger:& User decides to play/pause the simulation.\\ \hline
+            Pre-conditions:& User is viewing a 3D simulation.\\ \hline
+            Post-conditions:& The play/pause state of the 3D-simulation is toggled. Certain functionality (editing world or actors) is enabled or disabled.\\ \hline
+            Author:& Alex Parmentier\\ \hline
+            Date:& 2015-11-23 \\ \hline
+        \end{tabular}
+        
+        \vspace{.25cm}
+        
+        \addcontentsline{toc}{subsection}{Template: Modify AI}
+        \begin{tabular}{| l |p{13cm}|}
+            \hline
+            \rowcolor{Gray}
+            Use Case:& Modify AI \\ \hline
+            Summary:&The host user may add/delete/modify any actor while the simulation
+            is paused.\\ \hline
+            Activities: &
+            \begin{enumerate}
+                \item User indicates AI modifications in window in 3D-simulation.
+                \item On un-pause, modifications are sent to server to be incorporated into the game,  
+                along with a request to compute turns given the new AI changes.
+             \end{enumerate}
+            \\ \hline
+            Alternate Activities:& Host may simply decide to delete an AI. Or, may add one using a script
+            from a previous game.\\ \hline
+            Exception Paths:& None. \\ \hline
+            Extension Paths:& None. \\ \hline
+            Assumptions:& In engine AI editor is fully implemented.\\ \hline
+            Trigger:& Host user starts a game and is required to add at least one AI, or, game is paused 
+            and user decides to modify/delete/add an actor.\\ \hline
+            Pre-conditions:& User is hosting a 3D simulation.\\ \hline
+            Post-conditions:& Any changes are incorporated into the game, and new turn deltas are sent to the users
+            client to be displayed.\\ \hline
+            Author:& Alex Parmentier\\ \hline
+            Date:& 2015-11-23 \\ \hline
+        \end{tabular}
+        
+        \vspace{.25cm}
+        
+        \addcontentsline{toc}{subsection}{Template: Generate Map}
+        \begin{tabular}{| l |p{13cm}|}
+            \hline
+            \rowcolor{Gray}
+            Use Case:& Generate Map\\ \hline
+            Summary:& When a new game is started, a map is pseudo-randomly generated using sane distributions
+            of terrain and resources.\\ \hline
+            Activities: &
+            \begin{enumerate}
+                \item User starts a new game.
+                \item World generation script generates a large 2 dimensional array of terrain values and saves
+                to database.
+                \item Limited portion of array is sent to client in order to be displayed.
+             \end{enumerate}
+            \\ \hline
+            Alternate Activities:& None.\\ \hline
+            Exception Paths:& None. \\ \hline
+            Extension Paths:& After the map is received, host may immediately begin modifying map.\\ \hline
+            Assumptions:& World generation script is produced which is capable of generating interesting
+            and pseudo random terrain.\\ \hline
+            Trigger:& User starts a new game.\\ \hline
+            Pre-conditions:& User is hosting a 3D simulation.\\ \hline
+            Post-conditions:& A map of the terrain is created and saved in the database.\\ \hline
+            Author:& Alex Parmentier\\ \hline
+            Date:& 2015-11-23 \\ \hline
+        \end{tabular}
+        
+        \addcontentsline{toc}{subsection}{Template: Edit Map}
+        \begin{tabular}{| l |p{13cm}|}
+            \hline
+            \rowcolor{Gray}
+            Use Case:& Edit Map\\ \hline
+            Summary:& Host user has the ability to change the terrain type and elevation of any cell.\\ \hline
+            Activities: &
+            \begin{enumerate}
+                \item User enters map editing mode of 3D-Simulation.
+                \item User make a series of modifications to terrain cells.
+                \item List of terrain change deltas are sent to server.
+                \item Server applies transformations to map and computes new turn deltas.
+             \end{enumerate}
+            \\ \hline
+            Alternate Activities:& None.\\ \hline
+            Exception Paths:& None. \\ \hline
+            Extension Paths:& None.\\ \hline
+            Assumptions:& None. \\ \hline
+            Trigger:& User decided to edit the map on which the simulation occurs. \\ \hline
+            Pre-conditions:& User is hosting a 3D simulation which is paused.\\ \hline
+            Post-conditions:& Deltas are applied to database copy of map and new turns are computed.\\ \hline
+            Author:& Alex Parmentier\\ \hline
+            Date:& 2015-11-23 \\ \hline
+        \end{tabular}
+    \end{center}
+    
+    \vspace{.25cm}
+    
+    \addcontentsline{toc}{subsection}{Overview: Interacting with 3D simulation}
+
+    The most important concern to keep in mind about interacting with the 3D simulation is to 
+    make sure that the state of the world on the client side is constantly in synch with
+    the state of the world on the server side. Since computing turns is done on the server side, any 
+    modifications that are made by the host during a simulation must be correctly recorded and incorporated
+    into the simulation logic being run by the server.
+    
+    We will be using lists of deltas in order to send information between the client and server. For instance,
+    when a users modifies a cell on the map, the server will receive a packet that looks something like
+    \{cell:(x,y), elevation:(-4), type(dirt, grass)\}. Because we want to be able to implement rewinding
+    as a function, it is important that \textit{all} deltas used to describe changes in the world are easily
+    reversible. This includes state changes for actors in the world.
+    
+    A final concern is the scripting language we will construct for AIs. Because a goal of the project is to
+    make the scripting approachable enough that children could use it, we will implement a scripting interface
+    into the client that allows a user to create 'if-then' statements from drop down menus. A major challenge
+    will be to ensure that our scripting language is both expressive and simple. If it is not, it will
+    be difficult to make writing scripts fun and interesting.
+    \newpage
+    
+    
+    \section{Use Case Diagram: Determine and Persist Simulation State}
+    \begin{figure}[htb]
+      \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{server-uml}}%
+    \end{figure}
+        
+        \addcontentsline{toc}{subsection}{Template: Request Frames}
+        \begin{tabular}{| l |p{13cm}|}
+            \hline
+            \rowcolor{Gray}
+            Use Case:& Request Frames \\ \hline
+            Iteration:& Facade \\ \hline
+            Summary:& The client’s browser makes a request to the server for a new frame. \\
+                    & This new frame is what will contain the info to update the clients \\
+                    & UI on their web browser \\ \hline
+            Activities:& 1. This begins when a client starts running the simulation on their browser \\
+                       & 2. System responds by sending a request to the server for a frame, \\
+                       & based on the information of the current simulation running for the client \\
+                       & 3. The server returns a new frame to the client’s browser, clients \\
+                       & browser updates based on the new frame \\
+            \\ \hline
+            Alternate Activities:& If in step 2, there is some error thrown when a request is sent \\
+                                 & to the server, there may be an alternative path, where the client \\
+                                 & browser is updated with the same frame or some default frame, to \\
+                                 & prevent a crash of the simulation \\ \hline
+            Exception Paths:& Crash on request to server \\ \hline
+            Extension Paths:& None \\ \hline
+            Assumptions:& None \\ \hline
+            Trigger:& Simulation is running, therefore requests are made to server to return frames \\ 
+                    & to update the simulation.\\ \hline
+            Pre-conditions:& Running Simulation \\ \hline
+            Post-conditions:& Frames returned are used to update the simulation on the client’s browser \\ \hline
+            Author:& Louis Van Craen \\ \hline
+            Date:& 2015-11-23 \\ \hline
+        \end{tabular} \\ \\ \\ \\
+        
+        \addcontentsline{toc}{subsection}{Template: Find Frames}
+        \begin{tabular}{| l |p{13cm}|}
+            \hline
+            \rowcolor{Gray}
+            Use Case:& Find Frames \\ \hline
+            Iteration:& Facade \\ \hline
+            Summary:& Looks for the frames within the simulations memory, to send back to the requester \\
+                    & to allow update of the simulation. Else, if no frames exist, new frames are computed \\
+                    & and saved to the simulation memory. \\ \hline
+            Activities:& 1. Search the in simulation memory for corresponding frame number \\
+                       & 2. Once the frame number is found, return the frame to the requester \\
+            \\ \hline
+            Alternate Activities:& None \\ \hline
+            Exception Paths:& No frames found within memory, and new frames cannot be computed \\ \hline
+            Extension Paths:& No frames are found within memory, so new frames are computed and returned \\ \hline
+            Assumptions:& The user is running the simulation and wants updates done to the simulation \\ \hline
+            Trigger:& Frame request made\\ \hline
+            Pre-conditions:& Request for frames made, and simulation currently running \\ \hline
+            Post-conditions:& Frames, new or from within memory are returned \\ \hline
+            Author:& Louis Van Craen \\ \hline
+            Date:& 2015-11-23 \\ \hline
+        \end{tabular} \\ \\ \\ \\
+
+        \addcontentsline{toc}{subsection}{Template: Compute Frames}
+        \begin{tabular}{| l |p{13cm}|}
+            \hline
+            \rowcolor{Gray}
+            Use Case:& Compute Frames \\ \hline
+            Iteration:& Facade \\ \hline
+            Summary:& Based on our algorithms to create our simulation world, the frame will be \\
+                    & computed based on the current state of the simulation, with the new frame \\
+                    & providing updates for the objects currently in the simulation world. \\ \hline
+            Activities:& 1.	Check the current state of the simulation world \\
+                       & 2. Compute new frame, based on state \\
+                        & 3. Return the frame to requester \\
+            \\ \hline
+            Alternate Activities:& None \\ \hline
+            Exception Paths:& Error in frame computation \\ \hline
+            Extension Paths:& None \\ \hline
+            Assumptions:& No frames found in simulation memory, and simulation is capable of \\
+                        & computing and returning new frames \\ \hline
+            Trigger:& No frames are found in memory, so request is made to compute a new frame \\ \hline
+            Pre-conditions:& Knowledge of current state of simulation \\ \hline
+            Post-conditions:& New frame is returned  \\ \hline
+            Author:& Louis Van Craen \\ \hline
+            Date:& 2015-11-23 \\ \hline
+        \end{tabular}
+    \newpage
+    
+    
+        \addcontentsline{toc}{subsection}{Template: Save Frames}
+        \begin{tabular}{| l |p{13cm}|}
+            \hline
+            \rowcolor{Gray}
+            Use Case:& Save Frame to Memory \\ \hline
+            Iteration:& Facade \\ \hline
+            Summary:& The frame that was just computed is saved to the simulations memory, for future usage. \\ \hline
+            Activities:& 1.	Frame is saved to simulation memory \\
+            \\ \hline
+            Alternate Activities:& None \\ \hline
+            Exception Paths:& Lack of memory, so the new frame could not be saved  \\ \hline
+            Extension Paths:& None \\ \hline
+            Assumptions:& Frame that is being saved is consistent with other frames saved to memory \\ \hline
+            Trigger:& New frame is computed and ready to be used \\ \hline
+            Pre-conditions:& New frame has been computed \\ \hline
+            Post-conditions:& Frame is saved to simulation memory \\ \hline
+            Author:& Louis Van Craen \\ \hline
+            Date:& 2015-11-23 \\ \hline
+        \end{tabular} \\ \\ \\ \\
+        
+        \addcontentsline{toc}{subsection}{Template: Request Simulation Changes}
+        \begin{tabular}{| l |p{13cm}|}
+            \hline
+            \rowcolor{Gray}
+            Use Case:& Request Simulation Change \\ \hline
+            Iteration:& Facade \\ \hline
+            Summary:& As the host of a current simulation, you are able to request and make changes \\
+                    & to the simulation.  This is only possible as a host. These changes include AI \\
+                    & updates and additions, as well as new states of the objects in the simulation, \\
+                    & such as the plants and barriers. \\ \hline
+            Activities:& 1. Verify that the host is making the request to change the simulation \\
+                        & 2. Proceed to corresponding action to change simulation in some way \\
+            \\ \hline
+            Alternate Activities:& None \\ \hline
+            Exception Paths:& User is not the host of the simulation, deny access to changes in state  \\ \hline
+            Extension Paths:& None \\ \hline
+            Assumptions:& The requester is a host browser, i.e the host of the simulation that is being \\
+                        & requested on \\ \hline
+            Trigger:& Host interacts on the UI and wishes to make an update to the simulation \\ \hline
+            Pre-conditions:& The request was made by a host browser, and not a spectator browser \\ \hline
+            Post-conditions:& The request is allowed, and proceeds to corresponding change (will either \\
+                            & result in UI to change state of environment or UI to adjust AI elements) \\ \hline
+            Author:& Jon Arlauskas \\ \hline
+            Date:& 2015-11-23 \\ \hline
+        \end{tabular} \\ \\ \\ \\
+        
+        \begin{tabular}{| l |p{13cm}|}
+            \hline
+            \rowcolor{Gray}
+            Use Case:& Request Simulation Change \\ \hline
+            Iteration:& Facade \\ \hline
+            Summary:& The simulation receives the information from the client on what is to be updated. \\
+                    & Changes in characteristics and state of various game objects can be chosen. \\
+                    & These changes are then validated, and the new state of the simulation is computed. \\ \hline
+            Activities:& 1. Received the changes that are being asked to be made \\
+                        & 2. Verify that the changes are valid
+ \\
+                        &3. Compute the new state of the simulation, based on the changes done by the client \\
+            \\ \hline
+            Alternate Activities:& None \\ \hline
+            Exception Paths:& Invalid changes made, allow client to try again in making changes  \\ \hline
+            Extension Paths:& None \\ \hline
+            Assumptions:& Client is the host of the simulation \\ \hline
+            Trigger:& Request for changes to be made \\ \hline
+            Pre-conditions:& Host client, and client wishes to change environment state and not AI \\ \hline
+            Post-conditions:& State is validated, new state is computed based on the changes and \\
+                            & returned for action, and new state is saved to the simulation memory \\ \hline
+            Author:& Jon Arlauskas \\ \hline
+            Date:& 2015-11-23 \\ \hline
+        \end{tabular} \\ \\ \\ \\
+        
+        \addcontentsline{toc}{subsection}{Template: AI Creation}
+        \begin{tabular}{| l |p{13cm}|}
+            \hline
+            \rowcolor{Gray}
+            Use Case:& AI Creation \\ \hline
+            Iteration:& Facade \\ \hline
+            Summary:& Adding AI to the simulation. This will be based on AI scripts in the script \\
+                    & menu that had been created. Adding an AI will change the state of the simulation, \\
+                    & as there is now a new AI object added.  \\ \hline
+            Activities:& 1. Open up the menu to select an AI script
+ \\
+                        & 2. Once selected, instantiate the corresponding AI object
+ \\
+                        &3. Upon instantiation proceed to saving the state of the game
+ \\
+            \\ \hline
+            Alternate Activities:& None \\ \hline
+            Exception Paths:& No AI scripts are currently in the AI script table  \\ \hline
+            Extension Paths:& None \\ \hline
+            Assumptions:& AI scripts should be present in the script table \\ \hline
+            Trigger:& Client (host) wishes to add AI objects to the simulation, and requests to do so \\ \hline
+            Pre-conditions:& Request made to add to simulation\\ \hline
+            Post-conditions:& AI Object instantiated and added to the current state \\ \hline
+            Author:& Jon Arlauskas \\ \hline
+            Date:& 2015-11-23 \\ \hline
+        \end{tabular} \\ \\ \\ \\
+   
+        \addcontentsline{toc}{subsection}{Template: Save State Changes}
+        \begin{tabular}{| l |p{13cm}|}
+            \hline
+            \rowcolor{Gray}
+            Use Case:& Save State Changes \\ \hline
+            Iteration:& Facade \\ \hline
+            Summary:& The state of the object post change is saved to the simulation memory. \\
+                    & These changes will either be changes to the environment, in terms of environment \\
+                    & objects, etc. or AI additions to the simulation.  \\ \hline
+            Activities:& 1. Changes are made and a request to save is made
+ \\
+                        & 2. States are obtained, and persisted into the simulation memory
+ \\
+            \\ \hline
+            Alternate Activities:& None \\ \hline
+            Exception Paths:& Lack of memory in the simulation, so the states cannot be saved  \\ \hline
+            Extension Paths:& None \\ \hline
+            Assumptions:& Changes have been made to the state, hence requiring a save to memory \\ \hline
+            Trigger:& Request is made to save the state once changes are made \\ \hline
+            Pre-conditions:& Changes in environment or AI objects\\ \hline
+            Post-conditions:& State is persisted into the simulation memory \\ \hline
+            Author:& Jon Arlauskas \\ \hline
+            Date:& 2015-11-23 \\ \hline
+        \end{tabular}
+        
+    \addcontentsline{toc}{subsection}{Overview: Determine and Persist Simulation State}
+    The biggest concerns we will have here are ensuring that all actions are validated and error checked to ensure that they are consistent with the rest of the systems. To elaborate, when validating the state of an addition to the environment, care must be taken in making sure that the object fits all of the constraints we have placed on the environment. This holds for AI creation as well. Failing to restrict updates within our bounds can result in potential errors in our simulation, especially in the graphical component. 
+    
+    Additionally, we must be wary of a lack of connection when doing any network actions, e.g saving the simulation to the database. Interruptions can potentially result in inconsistencies in the simulation.
+    
+    Observe that we have the client, with two different paths, and the SQL adapter, with one action. It will be crucial to differentiate between host and spectator clients, which is what determines what form of change can be made to the simulation (addition of objects, or frame updates).
+    
+    \newpage
+    \section{System StoryBoard}
+    \begin{center}
+          \includegraphics[scale=0.46]{sys-storyboard}
+    \end{center}
+    
+    \subsection{Storyboard Detail: Log in view}
+    \begin{center}
+      \includegraphics[scale=0.5]{StoryBoard-Login-View-UI-Diagram}
+    \end{center}
+    \newpage
+    
+    \subsection{Storyboard Detail: Registration View}
+    \begin{center}
+      \includegraphics[scale=0.4]{StoryBoard-Register-View-UI-Diagram}
+    \end{center}
+    \newpage
+    
+    \subsection{Storyboard Detail: Simulation Select}
+    \begin{center}
+      \includegraphics[scale=0.5]{simsel}
+    \end{center}
+    \newpage
+    
+    \subsection{Storyboard Detail: Simulation Host View}
+    \begin{center}
+      \includegraphics[scale=0.5]{storyboard-sim-host}
+    \end{center}
+    \newpage
+    
+    \subsection{Storyboard Detail: Simulation Spectator View}
+    \begin{center}
+      \includegraphics[scale=0.5]{storyboard-sim-spec}
+    \end{center}
+    \newpage
+    
+    \subsection{Storyboard Detail: AI Script Upload}
+    \begin{center}
+      \includegraphics[scale=0.5]{AIScriptEditorDetail}
+    \end{center}
+    \newpage
+    
+    \subsection{Storyboard Detail: Credential Validation}
+    \begin{center}
+        \includegraphics[scale=0.5]{CredentialsDetail}
+    \end{center}
+    
+    \subsection{Storyboard Detail: Account Management}
+    \begin{center}
+        \includegraphics[scale=0.5]{accman}
+    \end{center}
+    
+    \subsection{Storyboard Observations}
+    The main challenge of designing the user interface for this 
+    project will be be creating a harmonious consistency between the 
+    java-script 3D-simulation applet and the surrounding HTML website.
+    Placement and visual coding of features should be consistent throughout
+    the project, which becomes far more difficult when working with multiple
+    display engines.
+    
+    The UI, in a general sense, will aim for simplicity. Rather than having
+    an extensive array of options and pages to visit on the site, the experience
+    will be more like that of a video game or mobile app, where progressing 
+    through menus and options is essentially linear. 
+    Each page will present only a few options for interaction and traversal of menus.
+
+    \newpage
+    
+    \section{Developer Deployment}
+    \subsection{Development Deployment Diagram}
+    \begin{center}
+        \includegraphics[scale=0.5]{dev-deployment}
+    \end{center}
+    \newpage
+    \subsection{Installation Directions}
+    \begin{itemize}
+    \item Install required software depicted in deployment diagram.
+    \item Only pip is necessary as it will install python module dependencies such as Pykka.
+    \item Start a local PostgresSQL server. By default the port is 5432.
+    \item Create a python3 virtualenv using the command "virtualenv -p python3 sim-env".
+    \item There will be a directory called "sim-env".
+    \item Execute "python ./sim-env/bin/activate".
+    \item Clone the development branch into the current working directory.
+    \item Change directories into the directory containing the development branch clone.
+    \item Execute "python setup.py"
+    \item Execute "python ./bin/simulation-server.py -p [port]" to run the server on the port.
+    \item Optionally Execute "python ./bin/simulation-server.py -p [port] --psqlport [psqlport]" 
+    if PostgreSQL is running on a different port.
+    \item Allow the server to create the proper database and tables required.
+    \item Connect to "http:/localhost:[port]/".
+    \end{itemize}
+    
+    \newpage    
+    \section{Live Deployment}
+    \subsection{Live Deployment Diagram}
+    \begin{center}
+        \includegraphics[scale=0.42]{deployment}
+    \end{center}
+    \newpage
+    \subsection{Installation Directions}
+    \begin{itemize}
+    \item Install required software depicted in deployment diagram using Ubuntu's apt-get.
+    \item Only pip is necessary as it will install python module dependencies such as Pykka.    
+    \item Make sure that /etc/postgressql/[version]/main/postgressql.conf contains your server's public
+    ip as one of its listen\_adresses.
+    \item Start the PostgresSQL server. By default the port is 5432.
+    \item Create a python3 virtualenv using the command "virtualenv -p python3 sim-env".
+    \item There will be a directory called "sim-env".
+    \item Execute "python ./sim-env/bin/activate".
+    \item Clone the live branch into the current working directory.
+    \item Change directories into the directory containing the live branch clone.
+    \item Execute "python setup.py"
+    \item Execute "python ./bin/simulation-server.py -p [port]" to run the server on the port.
+    \item Optionally Execute "python ./bin/simulation-server.py -p [port] --psqlport [psqlport]" 
+    if PostgreSQL is running on a different port.
+    \item Allow the server to create the proper database and tables required.
+    \item If there are integration errors please contact the development team.
+    \item Connect to "http:/[server-ip]:[port]/" on your local machine.
+    \end{itemize}
+
+    \section{Team Workflow}
+    \subsection{Team Use Case Diagram}
+    \begin{center}
+        \includegraphics[scale=0.42]{team-use-case}
+    \end{center}
+    \subsection{Important Notes}
+        Aside from developers, there is a scrum master who will also be a developer and a
+    live deployment manager who will make sure code on the live branch will integrate
+    correctly into the live deployment. Developers must meet bi-weekly with the scrum master
+    to specify exactly what code needs to be pushed to the development branch by the end of the sprint.
+    It must also be specified what the live deployment manager is meant to have properly
+    released and integrated into the live deployment by the end of the sprint. 
+    It is crucial that code from the live branch is retested on the live deployment before 
+    users can connect to the server.
+    
+    \newpage
+    \section{System Data Flow}
+    \begin{center}
+        \includegraphics[scale=0.40]{dataflow_fixed}
+    \end{center}
+    
+    \begin{center}
+    Note that the rounded boxes are activities, and the sharp edged boxed are data storage.\\
+    \end{center}
+    
+    Ideally this diagram makes clear that a host user is essentially a special subclass of a 
+    spectator, in that the host may dictate changes to the world, but in actually viewing
+    the simulation, data flows in the same way for the host as it does for any spectator.
+    From the perspective of the host actor, any changes that are made to the world are 
+    sent as list a list of delta-objects to the server. Once those changes are validated
+    by the server, the changes are compiled into the simulation data structure.
+    
+    The act of viewing a game essentially boils down to making http requests to the server
+    for a range of turns. The spectator actor requests a range of frames from the server, 
+    which it will then either produce from memory, by querying the SQL server, or by computing 
+    the requested turns. This depends on how recently the requested turns were computed,
+    or if they have been computed at all.
+    
+    When turns are computed, they are sent to the SQL server and saved. This way, this
+    history of each simulation is saved on the server for the long term, and can be
+    viewed by users.\\
+    
+    One major concern is ensuring that response time for user modifications is snappy. 
+    In order to be able to display the simulation at higher speeds, we will need to 
+    precompute turns and send them in packets to the user, yet we still want the user
+    to be able to pause at any point and make modifications to the world. 
+    The solution here is to ensure
+    that when a host user sends in a modification to the world, the number
+    of the turn they are making the modification at is included. This way, the precomputed turns
+    which are now no longer valid can easily be identified and recomputed.
+    
+    Another concern is making sure we actually store the modifications the user makes, so
+    that the game will make sense when played backwards. If a user changes a cell from
+    dirt to water at turn 100, we need to record this change in case an actor walked over the
+    cell during the first 100 turns, so that when played backwards we will not have an 
+    actor walking over water.
+\end{document}
